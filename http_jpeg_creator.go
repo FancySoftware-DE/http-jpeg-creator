@@ -67,62 +67,51 @@ func imgResponseHandler(rw http.ResponseWriter, req *http.Request, fn func(req *
 	}
 }
 
-func readDimensionParams(req *http.Request) (width, height int, err error) {
+func readDimensionParams(req *http.Request) (width, height uint32, err error) {
 	// width
-	wStr := req.URL.Query().Get("width")
-	log.Println("width: " + wStr)
-	w, err := strconv.ParseInt(wStr, 10, 64)
-	if err != nil {
+	if width, err = readUInt32Param(req, "width"); err != nil {
 		return 0, 0, err
 	}
-	width = int(w)
 
 	// height
-	hStr := req.URL.Query().Get("height")
-	log.Println("height: " + hStr)
-	h, err := strconv.ParseInt(hStr, 10, 64)
-	if err != nil {
+	if height, err = readUInt32Param(req, "height"); err != nil {
 		return 0, 0, err
 	}
-	height = int(h)
 
 	return width, height, nil
 }
 
-func readRgbParams(req *http.Request) (width, height int, red, green, blue uint32, err error){
-	width, height, err = readDimensionParams(req)
-	if err != nil {
+func readRgbParams(req *http.Request) (width, height, red, green, blue uint32, err error){
+	if width, height, err = readDimensionParams(req); err != nil {
 		return 0, 0, 0, 0, 0, err
 	}
 
 	// red
-	rStr := req.URL.Query().Get("red")
-	log.Println("red: " + rStr)
-	r, err := strconv.ParseInt(rStr, 10, 64)
-	if err != nil {
+	if red, err = readUInt32Param(req, "red"); err != nil {
 		return 0, 0, 0, 0, 0, err
 	}
-	red = uint32(r)
 
 	// green
-	gStr := req.URL.Query().Get("green")
-	log.Println("green: " + gStr)
-	g, err := strconv.ParseInt(gStr, 10, 64)
-	if err != nil {
+	if green, err = readUInt32Param(req, "green"); err != nil {
 		return 0, 0, 0, 0, 0, err
 	}
-	green = uint32(g)
 
 	// blue
-	bStr := req.URL.Query().Get("blue")
-	log.Println("blue: " + bStr)
-	b, err := strconv.ParseInt(bStr, 10, 64)
-	if err != nil {
+	if red, err = readUInt32Param(req, "blue"); err != nil {
 		return 0, 0, 0, 0, 0, err
 	}
-	blue = uint32(b)
 
 	return width, height, red, green, blue, nil
+}
+
+func readUInt32Param(req *http.Request, paramName string) (uint32, error){
+	str := req.URL.Query().Get(paramName)
+	log.Println(paramName + ": " + str)
+	i, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return uint32(i), nil
 }
 
 func createRndImage(width, height int) (image.Image) {
